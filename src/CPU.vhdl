@@ -4,13 +4,13 @@ use std.standard.all;
 
 library ieee;
 use ieee.std_logic_1164.all;
-
 -----------------------------------------------
-entity IITB_RISC_PIPELINE  is 
+
+entity CPU  is 
 	port( clock,reset: in std_logic);
 end entity;
 ------------------------------
-architecture struct of IITB_RISC_PIPELINE is
+architecture struct of CPU is
 signal c,z,ov,LS: std_logic; 
 signal ire: std_logic_vector(15 downto 0);
 signal fsm_v: std_logic_vector(25 downto 0);
