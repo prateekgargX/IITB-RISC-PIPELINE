@@ -12,7 +12,7 @@ end reg;
 architecture struct of reg is  
   begin  
 	
-    process (clock,reset,en)  
+    process (clk,reset)  
       begin  
       if (clk'event and clk = '1') then
         if reset = '1' then
