@@ -27,20 +27,20 @@ architecture behav of LSM is
     end component;
 
     -- hack to store enable signal for counter and register
-    component CCR is  
-    port
-    (
-        clk,reset  : in  std_logic;
-        C_en, Z_en : in  std_logic; -- Enables writes to C and Z
-        C_in,Z_in  : in  std_logic; -- Din
-        C,Z  	   : out std_logic  -- Outputs
-    );  
-    end component;
+    -- component CCR is  
+    -- port
+    -- (
+    --     clk,reset  : in  std_logic;
+    --     C_en, Z_en : in  std_logic; -- Enables writes to C and Z
+    --     C_in,Z_in  : in  std_logic; -- Din
+    --     C,Z  	   : out std_logic  -- Outputs
+    -- );  
+    -- end component;
 
     for mem_addr: reg use entity work.reg;
-    for en_reg: CCR use entity work.CCR;
+    -- for en_reg: CCR use entity work.CCR;
 
-signal reg_en,reg_en_i     : std_logic  :='1';
+signal reg_en,reg_en_i  : std_logic  :='0';
 signal count_en,count_en_i : std_logic  :='0';
 signal state_sig           : std_logic  :='0';
 
@@ -58,7 +58,16 @@ constant s_8:std_logic_vector(3 downto 0):="1000";
 
 begin 
     mem_addr: reg port map(clk => clk,reset=>reset,wr_en=>reg_en,din=>din,dout=>dout);
-    en_reg  : CCR port map(clk=>clk,reset=>reset,C_en=>'1',Z_en=>'1',C_in=>count_en_i,Z_in=>reg_en_i,C=>count_en,Z=>reg_en);
+    -- en_reg  : CCR port map(clk=>clk,reset=>reset,C_en=>'1',Z_en=>'1',C_in=>count_en_i,Z_in=>reg_en_i,C=>count_en,Z=>reg_en);
+
+en_proc: process(clk)
+    begin
+        if(clk'event and clk='1')then    
+        count_en<=count_en_i;
+        reg_en<=reg_en_i;
+        end if;
+    
+end process en_proc;
 
 count_process: process(clk)
 begin
@@ -91,7 +100,7 @@ end process count_process;
 -- output logic concurrent statemet or one more process
 -- if state == "0111" >> that signal ==1
 state_sig<='1' when state = "0111" else '0';
-reg_en_i<=not(LM_SM) or state_sig;
+reg_en_i <=not(LM_SM) or state_sig;
 count_en_i<=LM_SM and not(state_sig);
 
 PC_en<=not(LM_SM) or state_sig;
