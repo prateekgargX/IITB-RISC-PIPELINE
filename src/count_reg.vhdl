@@ -4,18 +4,18 @@ use ieee.std_logic_1164.all;
 -- INPUTS: clk,reset,C_en, Z_en,C_in,Z_in
 -- OUTPUTS: C,Z
 
-entity Count_reg is
+entity mod8counter is
 	port
 	(
-		count_rst,inc_sig: in std_logic;
-		y:out std_logic_vector(3 downto 0)
+		clk,en : in std_logic;
+		y:out std_logic_vector(2 downto 0)
 	);
 		
-end entity Count_reg;
+end entity mod8counter;
 
-architecture behav of Count_reg is
+architecture behav of mod8counter is
 
-signal state:std_logic_vector(3 downto 0);
+signal state:std_logic_vector(3 downto 0) := "1000";
 
 constant s_0:std_logic_vector(3 downto 0):="0000";
 constant s_1:std_logic_vector(3 downto 0):="0001";
@@ -29,38 +29,34 @@ constant s_8:std_logic_vector(3 downto 0):="1000";
 
 begin 
 
-reg_process: process(inc_sig,count_rst)
-
+count_process: process(clk)
 begin
-if(count_rst='1')then 
-	state<= s_0 ; -- write the reset state
-elsif(inc_sig'event and inc_sig='0')then                                                                                                                                                           
-
+if en='1' then 
+	if(clk'event and clk='1')then                                                                                                                                                           
 	case state is  
       when s_0=>
-		state<=s_7;
-		when s_1=>
-		state<=s_0;
-		when s_2=>
 		state<=s_1;
-		when s_3=>
+		when s_1=>
 		state<=s_2;
-		when s_4=>
+		when s_2=>
 		state<=s_3;
-		when s_5=>
+		when s_3=>
 		state<=s_4;
-		when s_6=>
+		when s_4=>
 		state<=s_5;
-		when s_7=>
+		when s_5=>
 		state<=s_6;
-		when s_8=>
-		state<=s_0;
-	--this is needed  because std_logic can take values other than 0,1 i.e high impedance
-      when others=> 
-        state<= s_0;
+		when s_6=>
+		state<=s_7;
+		when s_7=>
+		state<=s_8;
+        when others=> 
+        state<=s_0;
       end case; 
+	end if;
 end if;
-end process reg_process;
+
+end process count_process;
 -- output logic concurrent statemet or one more process
-y<=state;
+y<=state(2 downto 0);
 end behav;
