@@ -1,11 +1,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
+-- Counter for LM/SM -- Needs a review
+-- INPUTS: clk,reset,C_en, Z_en,C_in,Z_in
+-- OUTPUTS: C,Z
 
 entity Count_reg is
-port (
+	port
+	(
 		count_rst,inc_sig: in std_logic;
 		y:out std_logic_vector(3 downto 0)
-		);
+	);
 		
 end entity Count_reg;
 
@@ -51,8 +55,7 @@ elsif(inc_sig'event and inc_sig='0')then
 		state<=s_6;
 		when s_8=>
 		state<=s_0;
-
---this is needed  because std_logic can take values other than 0,1 i.e high imepedance
+	--this is needed  because std_logic can take values other than 0,1 i.e high impedance
       when others=> 
         state<= s_0;
       end case; 

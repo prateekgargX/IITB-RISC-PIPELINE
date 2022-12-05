@@ -16,10 +16,10 @@ entity memory is
 	port
 	(
 		clk				: in  std_logic;
-		din				: in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-		mem_a			: in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
-		wr_en			: in  std_logic;
-		dout			: out std_logic_vector(DATA_WIDTH - 1 downto 0)
+		din				: in  std_logic_vector(DATA_WIDTH - 1 downto 0); --data to be written into the memory
+		mem_a			: in  std_logic_vector(ADDR_WIDTH - 1 downto 0); --single port 
+		wr_en			: in  std_logic; --write enable
+		dout			: out std_logic_vector(DATA_WIDTH - 1 downto 0) --M[mem_a]
 	);
 end memory;
 

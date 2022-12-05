@@ -2,13 +2,14 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
-entity mux_8to1_1b is
+
+entity mux_8x1_1b is
 	Port ( x:in STD_LOGIC_VECTOR (7 downto 0);
 	sel:in STD_LOGIC_VECTOR (2 downto 0);
 	y : out STD_LOGIC);
-end mux_8to1_1b ;
+end mux_8x1_1b ;
 
-architecture Behavioral of mux_8to1_1b is
+architecture Behavioral of mux_8x1_1b is
 begin
 process (x,sel)
 begin

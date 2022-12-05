@@ -7,7 +7,7 @@ use ieee.std_logic_1164.all;
 -----------------------------------------------
 
 entity CPU  is 
-	port( clock,reset: in std_logic);
+	port( clk,reset: in std_logic);
 end entity;
 ------------------------------
 architecture struct of CPU is
@@ -15,7 +15,6 @@ signal c,z,ov,LS: std_logic;
 signal ire: std_logic_vector(15 downto 0);
 signal fsm_v: std_logic_vector(25 downto 0);
 		
-
 component exec_unit is 
 	port( --alu control-4
     fsm_op,alu_a_s,alu_b_s0,alu_b_s1, alu_c,
