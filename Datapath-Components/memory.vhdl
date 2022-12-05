@@ -1,38 +1,64 @@
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.numeric_std.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+-- use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
+-- use ieee.std_logic_textio.all;
+use std.textio.all;
 
-entity memory IS
+entity memory is
 	generic
 	(
-		mem_a_width	: integer := 7; --bytes of storage
-		data_width	: integer := 16
+		ADDR_WIDTH	: integer := 8; -- log2MAX instructions memory can hold
+		DATA_WIDTH	: integer := 16; -- 2 bytes on each addr.
+		INIT_FILE   	: string  := "LIL_INSTR.txt" -- file to initialize memory from 
 	);
 	
 	port
 	(
-		clock			: in  std_logic;
-		din			: in  std_logic_vector(data_width - 1 DOWNTO 0);
-		mem_a			: in  std_logic_vector(mem_a_width - 1 DOWNTO 0);
+		clk				: in  std_logic;
+		din				: in  std_logic_vector(DATA_WIDTH - 1 downto 0);
+		mem_a			: in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
 		wr_en			: in  std_logic;
-		dout			: OUT std_logic_vector(data_width - 1 DOWNTO 0)
+		dout			: out std_logic_vector(DATA_WIDTH - 1 downto 0)
 	);
 end memory;
---din = what's going into memory, dout = what's being loaded.
+
+-- din  = stored into memory,
+-- dout = loaded from memory.
 
 architecture behave of memory is
-   type memory IS ARRAY(0 TO 127) OF std_logic_vector(data_width - 1 DOWNTO 0);
-	signal memory_block : memory := (X"3355",X"106A",others=>( others => '0'));
+	type mem_array is array(0 to (2**ADDR_WIDTH)-1) of std_logic_vector(DATA_WIDTH-1 downto 0);
+	-- function to load instructions into memory
+	function load_from(file_name : in string) return mem_array is
+		file 	 mif_file : text open read_mode is file_name;
+		variable mif_line : line;
+		variable temp_bv  : bit_vector(DATA_WIDTH-1 downto 0);
+		variable temp_mem : mem_array;
+	begin
+		
+		for i in mem_array'range loop
+			if not endfile(mif_file) then
+				readline(mif_file, mif_line); -- Read into mifline
+				read(mif_line, temp_bv); -- Read into a bit vector
+				temp_mem(i) := to_stdlogicvector(temp_bv); --convert it std vec and store
+			else
+			temp_mem(i) := x"0000";
+			end if;
+			end loop;
+		return temp_mem;
+	end function;
+
+	signal memory_block : mem_array := load_from(INIT_FILE);
 
 begin
-    dout <= memory_block(to_integer(unsigned(mem_a(mem_a_width - 1 downto 0))));			
-	PROCESS (clock, wr_en, din)
-	BEGin
-		IF (clock'event AND clock = '1') THEN
-			IF (wr_en = '1') THEN
-			    memory_block(to_integer(unsigned(mem_a(mem_a_width - 1 downto 0)))) <= din;
-			END IF;
-		END IF;
-	END PROCESS;
+    dout <= memory_block(to_integer(unsigned(mem_a)));			
+	process(clk) -- reads can be async while writes are sync.
+	begin
+		if (clk'event and clk = '1') then
+			if (wr_en = '1') then
+			    memory_block(to_integer(unsigned(mem_a))) <= din;
+			end if;
+		end if;
+	end process;
 
-END behave;
+end behave;
