@@ -46,13 +46,13 @@ begin
                                   dout => dout
               );
 
-  -- process
-  -- begin
-  --   clk <= '0';
-  --   wait for clk_period/2;
-  --   clk <= '1';
-  --   wait for clk_period/2;
-  -- end process;
+  process
+  begin
+    clk <= '0';
+    wait for clk_period/2;
+    clk <= '1';
+    wait for clk_period/2;
+  end process;
 
   --  This process does the real job.
   process
@@ -61,7 +61,7 @@ begin
       for i in 0 to 31 loop
         --  Set the inputs.
         
-        clk <= '0';
+        -- clk <= '0';
 
         -- if (i mod 2) = 0 then
         --   clk <= '0';

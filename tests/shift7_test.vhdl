@@ -1,0 +1,45 @@
+library ieee;
+-- use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_1164.all;
+use std.textio.all; 
+--  A testbench has no ports.
+entity testy is
+
+end testy;
+    
+architecture behav of testy is
+      --  Declaration of the component that will be instantiated.
+      component shift7 is
+        port ( din  : in std_logic_vector(8 downto 0) ;
+               dout	: out std_logic_vector(15 downto 0) 
+                  ) ;
+     end component;
+    
+      --  Specifies which entity is bound with the component.
+      for DUT: shift7 use entity work.shift7;
+        signal din : std_logic_vector(8 downto 0);
+        signal dout: std_logic_vector(15 downto 0);  
+      begin
+      --  Component instantiation.
+      DUT: shift7 port map (din => din,dout =>dout);
+    
+      --  This process does the real job.
+      process
+        
+      begin
+        --  Check each pattern.
+        for i in 0 to 255 loop
+               
+            din <= std_logic_vector(to_unsigned(i, din'length));
+          --  Wait for the results.
+                    wait for 1 ns;
+
+        end loop;
+
+        assert false report "end of test" severity note;
+        --  Wait forever; this will finish the simulation.
+        wait;
+      end process;
+    
+end behav;
