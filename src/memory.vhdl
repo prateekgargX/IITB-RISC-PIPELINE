@@ -10,12 +10,12 @@ entity memory is
 	(
 		ADDR_WIDTH	: integer := 8; -- log2MAX instructions memory can hold
 		DATA_WIDTH	: integer := 16; -- 2 bytes on each addr.
-		INIT_FILE   	: string  := "LIL_INSTR.txt" -- file to initialize memory from 
+		INIT_FILE   : string  := "MIF.txt" -- file to initialize memory from 
 	);
 	
 	port
 	(
-		clk				: in  std_logic;
+		clk,reset    	: in  std_logic;
 		din				: in  std_logic_vector(DATA_WIDTH - 1 downto 0); --data to be written into the memory
 		mem_a			: in  std_logic_vector(ADDR_WIDTH - 1 downto 0); --single port 
 		wr_en			: in  std_logic; --write enable
@@ -56,7 +56,10 @@ begin
 	begin
 		if (clk'event and clk = '1') then
 			if (wr_en = '1') then
-			    memory_block(to_integer(unsigned(mem_a))) <= din;
+				if reset = '1' then
+					memory_block <= load_from(INIT_FILE);
+				elsif (wr_en = '1') then	
+				    memory_block(to_integer(unsigned(mem_a))) <= din;
 			end if;
 		end if;
 	end process;

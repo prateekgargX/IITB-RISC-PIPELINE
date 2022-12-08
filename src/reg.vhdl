@@ -10,16 +10,17 @@ entity reg is
 end reg;
 
 architecture struct of reg is  
+  signal data: std_logic_vector(15 downto 0);
   begin  
-	
     process (clk,reset)  
       begin  
       if (clk'event and clk = '1') then
         if reset = '1' then
-                dout <= (others => '0' ) ;
+                data <= (others => '0' ) ;
         elsif (wr_en = '1') then
-                dout <= din;
+                data <= din;
         end if;
       end if;
     end process;  
+  dout<= data;
 end struct;                      
