@@ -11,9 +11,9 @@ entity LSM is
 end LSM;
 
 architecture v2 of LSM is
----------------Define state type here-----------------------------
+---------------Defining state type here-----------------------------
 type state is (s0,s1,s2,s3,s4,s5,s6,s7);
----------------Define signals of state type-----------------------
+---------------Defining signals of state type-----------------------
 signal y_present,y_next: state:=s0;
 signal me_addr: std_logic_vector(2 downto 0):="000";
 
