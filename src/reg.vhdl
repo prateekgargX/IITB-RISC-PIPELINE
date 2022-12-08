@@ -3,9 +3,10 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
 entity reg is  
-  port(clk,reset,wr_en : in std_logic;
-       din   		       : in std_logic_vector(15 downto 0);  
-       dout  	         : out std_logic_vector(15 downto 0)
+  port(
+      clk,reset,wr_en : in std_logic;
+      din   		       : in std_logic_vector(15 downto 0);  
+      dout  	         : out std_logic_vector(15 downto 0)
       );  
 end reg;
 
