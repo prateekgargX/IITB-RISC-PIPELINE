@@ -16,9 +16,7 @@ entity iROM is
 	port
 	(
 		clk,reset		: in  std_logic;
-		din				: in  std_logic_vector(DATA_WIDTH - 1 downto 0); --data to be written into the memory
 		mem_a			: in  std_logic_vector(ADDR_WIDTH - 1 downto 0); --single port 
-		wr_en			: in  std_logic; --write enable
 		dout			: out std_logic_vector(DATA_WIDTH - 1 downto 0) --M[mem_a]
 	);
 end iROM;
@@ -57,9 +55,7 @@ begin
 		if (clk'event and clk = '1') then
             if reset = '1' then
                 memory_block <= load_from(INIT_FILE);
-            elsif (wr_en = '1') then
-			    memory_block(to_integer(unsigned(mem_a))) <= din;
-			end if;
+            end if;
 		end if;
 	end process;
 

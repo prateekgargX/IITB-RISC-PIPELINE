@@ -10,7 +10,7 @@ use ieee.numeric_std.all;
 entity controller is
     port
     (   opcode              :in std_logic_vector(3 downto 0);
-        CZ                  :in std_logic_vector(3 downto 0); -- last 2 bits of Instructions for conditional execution
+        CZ                  :in std_logic_vector(1 downto 0); -- last 2 bits of Instructions for conditional execution
         LSM_wr_en           :in std_logic; -- whether to treat current LS/LM instruction as a NOP.
         -- Branch_taken,
         LM_SM               :out std_logic;-- to LSM telling this is LM/SM instruction
@@ -26,8 +26,8 @@ entity controller is
         left_shift_B        :out std_logic; -- for ADL
         mem_din_mux         :out std_logic; -- data written into memory is multiplexed.
         mem_wr_en           :out std_logic; -- store into mem
-        is_branch           :out std_logic -- is a branch instruction(to staller)
-    );
+        WB_mux              :out std_logic_vector(1 downto 0) --controls what is written back to registers. 
+        );
 end controller;
 
 architecture v2 of controller is
@@ -81,7 +81,11 @@ begin
     ALU_op1_mux <= "00" when opcode = ADD or opcode = NDU else
                    "01" when opcode = LM or opcode = SM else -- Treg 
                    "10" ; -- IMM6, LW/SW
-    
+    WB_mux <= "00" when opcode = ADD or opcode = ADI or opcode = NDU else --aluout
+              "01" when opcode = LM or opcode = SM else --memout
+              "10" when opcode = LHI else --LHI 
+              "11" ; -- PC+1 into RA  -- branches
+
     regwrite_proc: process(opcode)
     begin
         if opcode = ADD or opcode = NDU then
@@ -98,9 +102,9 @@ begin
     regread_proc: process(opcode)
     begin
         if opcode = LM or opcode = SM then
-            RegBread_mux <= '0'; -- LSM count
+            RegBread_mux <= '1'; -- LSM count
         else
-            RegBread_mux <= '1'; -- RB            
+            RegBread_mux <= '0'; -- RB            
         end if;              
     end process regread_proc;            
 
