@@ -23,7 +23,7 @@ architecture behave of ALU is
 		begin
 			if (op_code='1') then --add
 			-- C = A + B
-			C <= STD_LOGIC_VECTOR(resize(unsigned(alu_a),17) + resize(unsigned(alu_b),17)); 
+			C <= STD_LOGIC_VECTOR(resize(signed(alu_a),17) + resize(signed(alu_b),17)); 
 			else --nand
 			c(16)<='0'; --set manually
 			C<= alu_a nand alu_b;

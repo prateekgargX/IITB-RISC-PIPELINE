@@ -15,9 +15,8 @@ entity uReg is
 end uReg ;
 
 architecture Behavioral of uReg is
-begin
-    signal data: std_logic_vector(DATA_WIDTH-1 downto 0);
-    begin  
+  signal data: std_logic_vector(DATA_WIDTH-1 downto 0);
+begin  
       process (clk,reset)  
         begin  
         if (clk'event and clk = '1') then
