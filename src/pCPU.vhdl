@@ -219,10 +219,10 @@ architecture lilcomp of pCPU is
     signal RR_EX_data:std_logic_vector(116 - 1 downto 0):=(others=>'0');
 
     signal EX_MEM_en: std_logic:='1';
-    signal EX_MEM_data:std_logic_vector(48 - 1 downto 0):=(others=>'0');
+    signal EX_MEM_data:std_logic_vector(88 - 1 downto 0):=(others=>'0');
 
     signal MEM_WB_en: std_logic:='1';
-    signal MEM_WB_data:std_logic_vector(48 - 1 downto 0):=(others=>'0');
+    signal MEM_WB_data:std_logic_vector(20 - 1 downto 0):=(others=>'0');
 
 -- instruction fetch(IF)
     signal pc_in,pc_out,rom_out,pc_add_out:std_logic_vector(15 downto 0):=x"0000";
@@ -263,11 +263,14 @@ architecture lilcomp of pCPU is
     --control signals
 -- execute (EX)
     signal alu_c_out,alu_z_out,CCR_c,CCR_z,
-            regwrite_ex: std_logic:= '0';
+    reg_W_en_EX: std_logic:= '0';
     signal alu_a_src,alu_b_src,alu_output,lshift_out:std_logic_vector(15 downto 0):=x"0000";
 
     --control signals
 -- memory access (MEM)
+    signal wb_mux_out:std_logic_vector(15 downto 0):=x"0000";
+    signal din_mux_out:std_logic_vector(15 downto 0):=x"0000";
+    signal data_out:std_logic_vector(15 downto 0):=x"0000";
     --control signals
 -- Write Back (WB)
     signal WB_reg:std_logic_vector(2 downto 0):="000";
@@ -338,11 +341,11 @@ begin
     CZ_depend_proc: process(RR_EX_data(107),RR_EX_data(108))
     begin
         if RR_EX_data(107) = '1' then
-            regWrite_EX <= CCR_C;
+            reg_W_en_EX <= CCR_C;
         elsif RR_EX_data(108) = '1' then
-            regWrite_EX <= CCR_Z;
+            reg_W_en_EX <= CCR_Z;
         else
-            regWrite_EX <= RR_EX_data(102);
+        reg_W_en_EX <= RR_EX_data(102);
         end if;
     end process CZ_depend_proc;
 
@@ -365,6 +368,20 @@ begin
         end if;
     end process alu_b_src_proc;    
 
+--- Mem Stage
+    RAM: memory generic map(ADDR_WIDTH => 16,DATA_WIDTH => 16,INIT_FILE  => DATA_FILE)        
+        port map(clk => clk,reset=>reset,din=>din_mux_out,
+        mem_a=>EX_MEM_data(63  downto 48),
+        wr_en=>EX_MEM_data(68),
+        dout=>data_out);
+
+        din_mux_out<= EX_MEM_data(31  downto 16) when EX_MEM_data(69) = '0' else EX_MEM_data(47  downto 32);
+
+        with EX_MEM_data(71  downto 70) select
+        wb_mux_out <= EX_MEM_data(63  downto 48) when "00",
+                      data_out when "01",
+                      EX_MEM_data(15  downto 0)  when "10",
+                      EX_MEM_data(87  downto 72) when others;
     -- signal mapping
     IF_ID_RR_EX_MEM_WB : process (clk,reset) begin  
     if (clk'event and clk = '1') then 
@@ -431,30 +448,21 @@ begin
 
             end if;
             if(EX_MEM_en='1')then
-                -- EX_MEM_data(15  downto 0) <= ID_RR_data(31  downto 16);
-                -- EX_MEM_data(31  downto 16) <= ID_RR_data(47  downto 32);
-                -- EX_MEM_data(47  downto 32) <= dRA;
-                -- EX_MEM_data(63  downto 48) <= dRB;
-                -- EX_MEM_data(66  downto 64) <= ID_RR_data(59  downto 57);
-                -- EX_MEM_data(69  downto 67) <= ID_RR_data(56  downto 54);
-                -- EX_MEM_data(85  downto 70) <= t_mem_addr;
-                -- EX_MEM_data(101  downto 86) <= ID_RR_data(92  downto 77) ;
-                -- -- Control signals
-                -- EX_MEM_data(102) <= ID_RR_data(95);
-                -- EX_MEM_data(104 downto 103) <= ID_RR_data(97 downto 96);
-                -- EX_MEM_data(105) <= ID_RR_data(98);
-                -- EX_MEM_data(106) <= ID_RR_data(99) ;
-                -- EX_MEM_data(107) <= ID_RR_data(100) ;
-                -- EX_MEM_data(108) <= ID_RR_data(101);
-                -- EX_MEM_data(109) <= ID_RR_data(102);
-                -- EX_MEM_data(110) <= ID_RR_data(103);
-                -- EX_MEM_data(111) <= ID_RR_data(104);
-                -- EX_MEM_data(112) <= ID_RR_data(105);
-                -- EX_MEM_data(113) <= ID_RR_data(106);
-                -- EX_MEM_data(115 downto 114) <= ID_RR_data(108 downto 107) ;
-            end if;
+                EX_MEM_data(15  downto 0) <= RR_EX_data(31  downto 16); --shift7
+                EX_MEM_data(31  downto 16) <= RR_EX_data(47  downto 32);--dRA
+                EX_MEM_data(47  downto 32) <= RR_EX_data(63  downto 48);--dRB
+                EX_MEM_data(63  downto 48) <= alu_output; 
+                EX_MEM_data(64) <= reg_W_en_EX;
+                EX_MEM_data(67  downto 65) <= RR_EX_data(56  downto 54); --register write
+                EX_MEM_data(68) <= RR_EX_data(113); --mem_en
+                EX_MEM_data(69) <= RR_EX_data(112); --mem_mux,
+                EX_MEM_data(71  downto 70) <= RR_EX_data(115 downto 114); -- wb_mux
+                EX_MEM_data(87  downto 72) <= RR_EX_data(101 downto 86); -- 
+                end if;
             if(MEM_WB_en='1')then
-
+                MEM_WB_data(15  downto 0) <=  wb_mux_out ;--shift7
+                MEM_WB_data(18  downto 16) <= EX_MEM_data(67  downto 65);--register write
+                MEM_WB_data(19) <= EX_MEM_data(64);-- _reg_w_en
             end if;
 
         end if; 
