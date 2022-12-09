@@ -49,7 +49,7 @@ end process;
   end process;
 
 
-  cpuinstance: pCPU generic map(DATA_FILE => "DATA.txt",INST_FILE => "INSTR.txt")
+  cpuinstance: pCPU generic map(DATA_FILE => "MIF.txt",INST_FILE => "INSTR.txt")
                 port map( clk=>clk, reset=>reset);
 
 end test;

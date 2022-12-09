@@ -273,9 +273,9 @@ architecture lilcomp of pCPU is
     signal data_out:std_logic_vector(15 downto 0):=x"0000";
     --control signals
 -- Write Back (WB)
-    signal WB_reg:std_logic_vector(2 downto 0):="000";
-    signal WB_data:std_logic_vector(15 downto 0):=x"0000";
-    signal RF_wr_en_ID_wb:std_logic:= '0';
+    -- signal WB_reg:std_logic_vector(2 downto 0):="000";
+    -- signal WB_data:std_logic_vector(15 downto 0):=x"0000";
+    -- signal RF_wr_en_ID_wb:std_logic:= '0';
 
 begin
 -- instruction fetch(IF)
@@ -314,7 +314,7 @@ begin
 
 -- Register Read(RR)
     myRegisters: reg_file port map(ao1=>ID_RR_data(50  downto 48),ao2=>ID_RR_data(53  downto 51),
-                                  ain=>WB_reg,clk=>clk,reset=>reset,do1=>dRA,do2=>dRB,din=>WB_data,wr_en=>RF_wr_en_ID_wb);
+                                  ain=>EX_MEM_data(67  downto 65),clk=>clk,reset=>reset,do1=>dRA,do2=>dRB,din=>MEM_WB_data(15  downto 0) ,wr_en=>MEM_WB_data(19));
     LSMtreg    : reg port map (clk=>clk,reset=>reset,wr_en=>ID_RR_data(60),din=>dRA,dout=>dTreg);
 
     -- software MUX
