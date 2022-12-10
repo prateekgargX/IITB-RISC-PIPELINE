@@ -19,15 +19,19 @@ signal me_addr: std_logic_vector(2 downto 0):="000";
 
 function p_enc(A: in std_logic_vector(7 downto 0); index : integer) return integer is
     --variable op : std_logic_vector(3 downto 0):= (others=>'0');
-    variable k  : integer := 0;
+    variable k  : integer := 8;
   begin
 
-    for i in index to 8 loop
-        if i>7 then
-            k := i; 
-            exit;
-        elsif A(i) = '1' then
-            k := i; 
+    for i in index to 7 loop
+        -- if i>7 then
+        --     k := i; 
+        --     exit;
+        -- elsif A(i) = '1' then
+        --     k := i; 
+        --     exit;
+        -- end if;
+        if A(i) = '1' then
+            k:= i; 
             exit;
         end if;
     end loop;
@@ -51,19 +55,16 @@ begin
     
 end process;
 
-mem_proc:process(clk,reset,y_present)
+mem_proc:process(y_present)
 begin
-    if(clk='1' and clk' event) then
-        if reset = '1' or y_present = s0 then
-            me_addr<= "000";
-        else
-            me_addr<= std_logic_vector(unsigned(me_addr) + 1);
-        end if;
+    if(y_present=s0) then
+        me_addr<= "000";
+    elsif y_present' event then
+        me_addr<= std_logic_vector(unsigned(me_addr) + 1);
     end if;
-    
 end process;
 
-state_transition_proc:process(inp,y_present)
+state_transition_proc:process(inp,LM_SM,y_present)
     variable int_inp0 : integer := p_enc(inp,0);
     variable int_inp1 : integer := p_enc(inp,1);
     variable int_inp2 : integer := p_enc(inp,2);
@@ -167,7 +168,7 @@ begin
 		  end case;
 end process;
 
-output_proc: process(y_present,inp,LM_SM)
+output_proc: process(y_present,y_next,inp,LM_SM)
 begin
 
         if LM_SM = '0' then
@@ -180,24 +181,24 @@ begin
                 when s0=>
                     if p_enc(inp,0) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,0),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '1';                                                             
                     end if;
                 when s1=>
                     if p_enc(inp,1) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,1),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
@@ -205,12 +206,12 @@ begin
                 when s2=>
                     if p_enc(inp,2) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,2),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
@@ -218,12 +219,12 @@ begin
                 when s3=>
                     if p_enc(inp,3) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,3),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
@@ -231,12 +232,12 @@ begin
                 when s4=>
                     if p_enc(inp,4) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,4),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
@@ -244,12 +245,12 @@ begin
                 when s5=>
                     if p_enc(inp,5) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,5),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
@@ -257,12 +258,12 @@ begin
                 when s6=>
                     if p_enc(inp,6) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,6),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
@@ -270,19 +271,24 @@ begin
                 when s7=>
                     if p_enc(inp,7) = 8 then
                         reg_addr <= "000";        
-                        PC_en    <= '1';
+                        -- PC_en    <= '1';
                         w_en     <= '0';
                         t_en     <= '1';                                     
                     else
                         reg_addr <= std_logic_vector(to_unsigned(p_enc(inp,7),reg_addr'length));        
-                        PC_en    <= '0';
+                        -- PC_en    <= '0';
                         w_en     <= '1';
                         t_en     <= '0';                                                             
                     end if;
 
             end case;
-    
-        end if;
+
+            case y_next is
+                when s0 => PC_en <= '1';
+                when others => PC_en <= '0';
+            end case;
+
+            end if;
     
 end process;
     mem_addr<=me_addr;
